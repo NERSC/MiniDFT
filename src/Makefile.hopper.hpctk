@@ -1,0 +1,20 @@
+FFTW_INCL = -I/opt/fftw/3.3.0.1/x86_64/include
+FFTW_LIBS = -L/opt/fftw/3.3.0.1/x86_64/lib -lfftw3
+BLAS_LIBS =
+SCALAPACK_LIBS = 
+
+DFLAGS = -D__PGI -D__HPCTK
+
+USE_HPCTK = TRUE
+#USE_HPCTK =
+
+CC = cc 
+CFLAGS = 
+
+FC = ftn 
+FFLAGS = -gopt -fast -Mcache_align -r8 -Mpreprocess
+
+LD = hpclink ftn
+LDFLAGS = 
+
+include Makefile.base

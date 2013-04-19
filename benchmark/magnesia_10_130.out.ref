@@ -1,29 +1,26 @@
 
-     Program PWSCF v.5.0        starts on 18Dec2012 at 18:43: 5 
+     Program MiniDFT v.1.0      starts on 18Apr2013 at 21:39: 7 
 
-     This program is part of the open-source Quantum ESPRESSO suite
-     for quantum simulation of materials; please cite
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
-          URL http://www.quantum-espresso.org", 
-     in publications or presentations arising from this work. More details at
-     http://www.quantum-espresso.org/quote.php
+     This is mini-DFT, a mini-application for plane-wave density functional
+     theory calculations. Mini-DFT was extracted from
+     the open-source Quantum ESPRESSO suite by B. Austin (2013). 
+
+     To acknowledge Quantum ESPRESSO, please cite
+         P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         URL http://www.quantum-espresso.org
 
      Parallel version (MPI), running on 10000 processors
      R & G space division:  proc/pool = ****
      wavefunctions fft division:  fft/group =    5
 
-     Current dimensions of program PWSCF are:
+     Current dimensions of program MiniDFT are:
      Max number of different atomic species (ntypx) = 10
      Max number of k-points (npk) =  40000
      Max angular momentum in pseudopotentials (lmaxx) =  3
-     Reading input from Mg_000_130.in
-     Message from routine upf.f90:59:
-     replacing read_upf_v2 with upf_nml_read to avoit iotk
-     Message from routine upf.f90:59:
-     replacing read_upf_v2 with upf_nml_read to avoit iotk
+     Reading input from magnesia_10_130.in
 
      Subspace diagonalization in iterative solution of the eigenvalue problem:
-     scalapack distributed-memory algorithm (size of sub-group: ***100 procs)
+     scalapack distributed-memory algorithm (size of sub-group: 70* 70 procs)
 
      Found symmetry operation: I + (  0.0000  0.0000  0.1000)
      This is a supercell, fractional translations are disabled
@@ -69,7 +66,7 @@
 
 
      PseudoPot. # 1 for Mg read from file:
-     ./Mg.pz-bhs.UPF.nml
+     ./Mg.pz.nml
      MD5 check sum: f0361a84b86a1a82c6b5f2c54d8a9b88
      Pseudo is Norm-conserving, Zval =  2.0
      Generated using BHS code
@@ -77,7 +74,7 @@
                 l(1) =   0
 
      PseudoPot. # 2 for  O read from file:
-     ./O.pz-mt.UPF.nml
+     ./O.pz.nml
      MD5 check sum: 02e36e55e29b8f2f4a0748c6f080d52f
      Pseudo is Norm-conserving, Zval =  6.0
      Generated using JLMartins code
@@ -2110,7 +2107,7 @@
         G-vector shells                 0.01 Mb     (   1928)
      Largest temporary arrays     est. size (Mb)     dimensions
         Auxiliary wavefunctions        84.23 Mb     (    345,16000)
-        Each subspace H/S matrix        0.39 Mb     ( 160, 160)
+        Each subspace H/S matrix        0.79 Mb     ( 228, 228)
         Each <psi_i|beta_j> matrix    122.07 Mb     (   2000, 4000)
         Arrays for rho mixing          22.78 Mb     ( 186624,   8)
 
@@ -2119,17 +2116,15 @@
      starting charge 7999.37722, renormalised to 8000.00000
      Starting wfc are 8000 atomic wfcs
 
-     total cpu time spent up to now is      722.9 secs
+     total cpu time spent up to now is      533.1 secs
 
      Self-consistent Calculation
 
      iteration #  1     ecut=   130.00 Ry     beta=0.70
      Davidson diagonalization with overlap
      ethr =  5.00E-04,  avg # of iterations =  3.0
-     Message from routine electrons.f90:275:
-     skipping write_rho; not implemented
 
-     total cpu time spent up to now is     1755.3 secs
+     total cpu time spent up to now is     1448.9 secs
 
      total energy              =  -33817.52389012 Ry
      Harris-Foulkes estimate   =  -34104.58300919 Ry
@@ -2139,66 +2134,49 @@
 
      convergence NOT achieved after   1 iterations: stopping
  
-     init_run     :    657.71s CPU    713.40s WALL (       1 calls)
-     electrons    :    906.31s CPU   1032.47s WALL (       1 calls)
+     init_run       :    446.92s CPU    516.24s WALL (       1 calls)
+     electrons      :    840.45s CPU    915.87s WALL (       1 calls)
 
      Called by init_run:
-     wfcinit      :    463.12s CPU    514.56s WALL (       1 calls)
-     potinit      :      1.09s CPU      1.10s WALL (       1 calls)
+     wfcinit        :    391.06s CPU    457.20s WALL (       1 calls)
+     potinit        :      0.97s CPU      0.98s WALL (       1 calls)
 
      Called by electrons:
-     c_bands      :    813.42s CPU    921.09s WALL (       1 calls)
-     sum_band     :     85.73s CPU    104.07s WALL (       1 calls)
-     v_of_rho     :      0.71s CPU      0.71s WALL (       2 calls)
-     mix_rho      :      0.30s CPU      0.30s WALL (       1 calls)
+     c_bands        :    746.64s CPU    811.90s WALL (       1 calls)
+     sum_band       :     86.69s CPU     96.85s WALL (       1 calls)
+     v_of_rho       :      0.68s CPU      0.70s WALL (       2 calls)
+     mix_rho        :      0.30s CPU      0.30s WALL (       1 calls)
 
      Called by c_bands:
-     init_us_2    :      0.05s CPU      0.07s WALL (       3 calls)
-     cegterg      :    813.33s CPU    920.66s WALL (       1 calls)
+     init_us_2      :      0.04s CPU      0.07s WALL (       3 calls)
+     cegterg        :    746.56s CPU    811.46s WALL (       1 calls)
 
      Called by *egterg:
-     h_psi        :    870.23s CPU   1025.16s WALL (       5 calls)
-     g_psi        :      0.04s CPU      0.05s WALL (       3 calls)
-     cdiaghg      :    142.85s CPU    143.65s WALL (       4 calls)
+     h_psi          :    832.89s CPU    961.76s WALL (       5 calls)
+     g_psi          :      0.04s CPU      0.04s WALL (       3 calls)
+     cdiaghg        :     81.23s CPU     81.36s WALL (       4 calls)
 
      Called by h_psi:
-     add_vuspsi   :     20.57s CPU     21.93s WALL (       5 calls)
+     add_vuspsi     :     21.26s CPU     22.78s WALL (       5 calls)
 
      General routines
-     calbec       :     24.35s CPU     24.41s WALL (       5 calls)
-     fft          :      3.84s CPU      6.32s WALL (       8 calls)
-     fftw         :    844.04s CPU   1012.06s WALL (    8870 calls)
-     davcio       :      0.00s CPU      0.03s WALL (       1 calls)
+     calbec         :     23.12s CPU     23.14s WALL (       5 calls)
+     fft            :      4.59s CPU      6.43s WALL (       8 calls)
+     fftw           :    813.71s CPU    950.93s WALL (    8870 calls)
  
      Parallel routines
-     fft_scatter  :    685.25s CPU    769.90s WALL (    8878 calls)
-     ALLTOALL     :     44.75s CPU     38.91s WALL (    8870 calls)
+     fft_scatter    :    655.85s CPU    728.69s WALL (    8878 calls)
+     ALLTOALL       :     46.19s CPU     46.53s WALL (    8870 calls)
      EXX routines
  
-     PWSCF        : 26m25.44s CPU    29m35.71s WALL
+     MiniDFT        : 21m33.40s CPU    24m 8.94s WALL
 
  
-   This run was terminated on:  19:12:40  18Dec2012            
+   This run was terminated on:  22: 3:16  18Apr2013            
 
 =------------------------------------------------------------------------------=
-   JOB DONE.
+     JOB DONE.
+     Benchmark_Time :    840.46s CPU    915.87s WALL (       1 calls)
 =------------------------------------------------------------------------------=
-##IPM2v0.xx########################################################
-#
-# command   : ./mini_dft -ntg 5 -ndiag 10000 -in Mg_000_130.in 
-# start     : Tue Dec 18 18:43:04 2012   host      : nid00111        
-# stop      : Tue Dec 18 19:12:41 2012   wallclock : 1777.03
-# mpi_tasks : 10000 on 417 nodes         %comm     : 60.04
-# mem [GB]  : 8631.71                    gflop/sec : 7113.92
-#
-#           :       [total]        <avg>          min          max
-# wallclock :    17769674.16      1776.97      1776.91      1777.03 
-# MPI       :    10668736.95      1066.87       910.84      1274.59 
-# %wall     :
-#   MPI     :                      60.04        51.26        71.73 
-# #calls    :
-#   MPI     :    5125053985       512505       309152       832593
-# mem [GB]  :       8631.71         0.86         0.86         0.87 
-#
-###################################################################
-Application 14216058 resources: utime ~15952250s, stime ~1796319s Rss ~916648 inblocks ~500307980 outblocks ~410414660
+ 1
+Application 16642330 resources: utime ~13047945s, stime ~1350536s, Rss ~912592, inblocks ~184742316, outblocks ~18639319

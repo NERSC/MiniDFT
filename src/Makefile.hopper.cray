@@ -8,6 +8,7 @@ BLAS_LIBS =
 SCALAPACK_LIBS = 
 
 DFLAGS = -D__CRAY
+#DFLAGS += -D__IPM
 
 CC = cc 
 CFLAGS = -O2

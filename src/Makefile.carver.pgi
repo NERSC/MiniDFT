@@ -1,5 +1,5 @@
 #Uncomment the following line to enable OpenMP
-#USE_OPENMP = TRUE
+USE_OPENMP = TRUE
 
 FFTW_INCL = -I/usr/common/usg/fftw/3.2.2/include
   FFTW_LIBS  = -L/usr/common/usg/fftw/3.2.2/lib -lfftw3_threads -lfftw3

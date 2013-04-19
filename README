@@ -1,4 +1,4 @@
-This is the README file for MiniDFT 1.0.
+This is the README file for MiniDFT 1.03.
 
 A.) Description
 
@@ -76,7 +76,7 @@ Input decks for for two problem sizes (single-node and large) are provided in th
 D.1) Single_node case
 The single-node input file (titania_3_120.in) performs one SCF cycle for a 3x3x3 super-cell for TiO2, using the PBE GGA functional and a 120 Ry plane wave cutoff. Only one SCF iteration is performed, so the jobs will exit before the SCF cycle converges. Two runs are required:
 
-D.1.a) MPI-only: Un-optimized code using only MPI as an execution model is allowed (see RFP documentation). Concurrency and affinity (the number of MPI tasks and their placement that produce a minimum execution time are at the discretion of the vendor). The -ndiag and -ntg flags may not be used. Please ensure that OpenMP is turned off for these runs.
+D.1.a) MPI-only: Un-optimized code using only MPI as an execution model is allowed (see RFP documentation). The MPI concurrency is fixed to 40 MPI tasks, but affinity (their placement of those tasks) is left to the discretion of the vendor. The -ndiag and -ntg flags may not be used. Please ensure that OpenMP is turned off for these runs.
 
 D.1.b) MPI+X: Using an additional parallelism-enabling API (such as OpenMP, etc), and any other possible optimizations (see RFP documentation) the vendor will return the result of a run that minimizes execution time with concurrency (MPI tasks and number of threads) and affinity at the discretion of the vendor. The -ndiag and -ntg flags may also be tuned by the vendor.
 
@@ -84,7 +84,7 @@ D.1.b) MPI+X: Using an additional parallelism-enabling API (such as OpenMP, etc)
 D.2) Large case
 The large test case (magnesia_10_130.in) performs one SCF cycle for a 10x10x10 super-cell of MgO, using the LDA functional and a 130 Ry plane wave cutoff. Only one SCF iteration is performed, so the jobs will exit before the SCF cycle converges. Two runs are required:
 
-D.2.a) MPI-only: As per (D.1.a) for the single node test.
+D.2.a) MPI-only: As per (D.1.a) for the single node test, but the MPI concurrency is set to 10000 tasks.
 
 D.2.b) MPI+X: Same rules as for the optimized single node case but for a large problem that spans many nodes. This problem has been tested at 10000 MPI ranks in MPI-only mode
 

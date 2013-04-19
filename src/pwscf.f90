@@ -26,10 +26,10 @@ PROGRAM pwscf
   USE read_input,         ONLY : read_input_file
   !
   IMPLICIT NONE
+  !
 #ifdef __OPENMP
   include 'omp_lib.h'
 #endif
-  !
   !
   INTEGER :: ierr
   CHARACTER(len=256) :: dirname
@@ -89,6 +89,9 @@ PROGRAM pwscf
 #ifdef __HPCTK
   call hpctoolkit_sampling_start();
 #endif
+#ifdef __IPM
+  call MPI_Pcontrol( 1, "NERSC"//char(0))
+#endif
   !
   main_loop: DO
      !
@@ -129,6 +132,9 @@ PROGRAM pwscf
   CALL MPI_Barrier( intra_image_comm, ierr )
   CALL stop_clock( 'Benchmark_Time' )
   !
+#ifdef __IPM
+  call MPI_Pcontrol( -1, "NERSC"//char(0))
+#endif
 #ifdef __HPCTK
   call hpctoolkit_sampling_stop();
 #endif

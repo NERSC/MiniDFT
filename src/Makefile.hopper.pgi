@@ -7,6 +7,7 @@ BLAS_LIBS =
 SCALAPACK_LIBS = 
 
 DFLAGS = -D__PGI
+#DFLAGS += -D__IPM
 
 CC = cc 
 CFLAGS = 

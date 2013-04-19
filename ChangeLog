@@ -1,0 +1,14 @@
+18-April-2013  v1.03 B. Austin <brianmaustin @nospam@ gmail.com>
+	* src/pwscf.f90: added IPM regions (ifdef protected)
+	* src/Makefile.hopper.*: added optional (default=off) IPM defines
+	* benchmark/magnesia_10_130.out.ref: updated reference output
+
+27-March-2013  v1.02 B. Austin <brianmaustin @nospam@ gmail.com>
+	* README: define concurrency for MPI-only tests.
+	* Added ChangeLog
+
+22-March-2013  v1.01 B. Austin <brianmaustin @nospam@ gmail.com>
+	* src/*.UPF src/*.nml: removed pseudopotential files from src directory
+
+02-March-2013  v1.0  B. Austin <brianmaustin @nospam@ gmail.com>
+	* Initial check-in

@@ -1,5 +1,5 @@
 
-     Program MiniDFT v.1.0      starts on 18Apr2013 at 21:39: 7 
+     Program MiniDFT v.1.0      starts on 23Apr2013 at 13: 0:43 
 
      This is mini-DFT, a mini-application for plane-wave density functional
      theory calculations. Mini-DFT was extracted from
@@ -2116,7 +2116,7 @@
      starting charge 7999.37722, renormalised to 8000.00000
      Starting wfc are 8000 atomic wfcs
 
-     total cpu time spent up to now is      533.1 secs
+     total cpu time spent up to now is      572.1 secs
 
      Self-consistent Calculation
 
@@ -2124,7 +2124,7 @@
      Davidson diagonalization with overlap
      ethr =  5.00E-04,  avg # of iterations =  3.0
 
-     total cpu time spent up to now is     1448.9 secs
+     total cpu time spent up to now is     1497.2 secs
 
      total energy              =  -33817.52389012 Ry
      Harris-Foulkes estimate   =  -34104.58300919 Ry
@@ -2134,49 +2134,49 @@
 
      convergence NOT achieved after   1 iterations: stopping
  
-     init_run       :    446.92s CPU    516.24s WALL (       1 calls)
-     electrons      :    840.45s CPU    915.87s WALL (       1 calls)
+     init_run       :    484.96s CPU    555.36s WALL (       1 calls)
+     electrons      :    845.70s CPU    925.10s WALL (       1 calls)
 
      Called by init_run:
-     wfcinit        :    391.06s CPU    457.20s WALL (       1 calls)
-     potinit        :      0.97s CPU      0.98s WALL (       1 calls)
+     wfcinit        :    428.45s CPU    495.57s WALL (       1 calls)
+     potinit        :      1.08s CPU      1.09s WALL (       1 calls)
 
      Called by electrons:
-     c_bands        :    746.64s CPU    811.90s WALL (       1 calls)
-     sum_band       :     86.69s CPU     96.85s WALL (       1 calls)
-     v_of_rho       :      0.68s CPU      0.70s WALL (       2 calls)
+     c_bands        :    746.01s CPU    815.28s WALL (       1 calls)
+     sum_band       :     92.59s CPU    102.68s WALL (       1 calls)
+     v_of_rho       :      0.71s CPU      0.71s WALL (       2 calls)
      mix_rho        :      0.30s CPU      0.30s WALL (       1 calls)
 
      Called by c_bands:
      init_us_2      :      0.04s CPU      0.07s WALL (       3 calls)
-     cegterg        :    746.56s CPU    811.46s WALL (       1 calls)
+     cegterg        :    745.95s CPU    814.85s WALL (       1 calls)
 
      Called by *egterg:
-     h_psi          :    832.89s CPU    961.76s WALL (       5 calls)
-     g_psi          :      0.04s CPU      0.04s WALL (       3 calls)
-     cdiaghg        :     81.23s CPU     81.36s WALL (       4 calls)
+     h_psi          :    879.85s CPU   1013.76s WALL (       5 calls)
+     g_psi          :      0.04s CPU      0.05s WALL (       3 calls)
+     cdiaghg        :     71.20s CPU     71.32s WALL (       4 calls)
 
      Called by h_psi:
-     add_vuspsi     :     21.26s CPU     22.78s WALL (       5 calls)
+     add_vuspsi     :     21.27s CPU     22.66s WALL (       5 calls)
 
      General routines
-     calbec         :     23.12s CPU     23.14s WALL (       5 calls)
-     fft            :      4.59s CPU      6.43s WALL (       8 calls)
-     fftw           :    813.71s CPU    950.93s WALL (    8870 calls)
+     calbec         :     22.95s CPU     22.98s WALL (       5 calls)
+     fft            :      4.92s CPU      6.62s WALL (       8 calls)
+     fftw           :    868.45s CPU   1010.60s WALL (    8870 calls)
  
      Parallel routines
-     fft_scatter    :    655.85s CPU    728.69s WALL (    8878 calls)
-     ALLTOALL       :     46.19s CPU     46.53s WALL (    8870 calls)
+     fft_scatter    :    718.84s CPU    794.27s WALL (    8878 calls)
+     ALLTOALL       :     38.99s CPU     39.22s WALL (    8870 calls)
      EXX routines
  
-     MiniDFT        : 21m33.40s CPU    24m 8.94s WALL
+     MiniDFT        : 22m16.56s CPU    24m57.16s WALL
 
  
-   This run was terminated on:  22: 3:16  18Apr2013            
+   This run was terminated on:  13:25:40  23Apr2013            
 
 =------------------------------------------------------------------------------=
      JOB DONE.
-     Benchmark_Time :    840.46s CPU    915.87s WALL (       1 calls)
+     Benchmark_Time :    845.70s CPU    925.10s WALL (       1 calls)
 =------------------------------------------------------------------------------=
  1
-Application 16642330 resources: utime ~13047945s, stime ~1350536s, Rss ~912592, inblocks ~184742316, outblocks ~18639319
+Application 16792099 resources: utime ~13488975s, stime ~1386191s, Rss ~912592, inblocks ~185537906, outblocks ~18690009

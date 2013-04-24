@@ -4,8 +4,25 @@
 import sys
 
 #parse options (just filenames)
-fname = sys.argv[1]
-f = open( fname, 'r' )
+print_usage = False
+if( len(sys.argv) < 2 ): 
+    print "Please provide the name of the file you want to validate."
+    print_usage=True
+else:
+    for a in sys.argv[1:]:
+        if( a=="-h" or a=="--help" ): print_usage=True
+if( print_usage==True ):
+  print "Usage: validate_minidft.py <options> filename"
+  print "Options:"
+  print "  -h, --help:     Show this help message"
+  exit(0)
+
+try:
+    fname = sys.argv[1]
+    f = open( fname, 'r' )
+except:
+    print "The requested file (", fname, ") cannot be opened."
+    exit(0)
 
 #determine which benchmark is being tested
 measured = {}

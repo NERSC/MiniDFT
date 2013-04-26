@@ -1,4 +1,4 @@
-This is the README file for MiniDFT 1.03.
+This is the README file for MiniDFT 1.04.
 
 A.) Description
 
@@ -38,6 +38,8 @@ B.4) Initiate the build
 
 > make
 
+Note: parallel make (e.g., -j 4) will not work.
+
 B.5) Validate your build (optional): 
 
 B.5.i) Move to the test directory.  The two jobs in this directory are significantly smaller than either of the required benchmark runs, and can be used to quickly confirm that your build of mini-DFT gives correct results. These jobs can run with any concurrency less than about 70 MPI tasks.  Section C provides more detail about how to run the code.
@@ -65,6 +67,8 @@ The -ntg flag (optional) enables task-group parallelism to improve the parallel 
 
 The -ndiag flag (optional) sets the number of MPI ranks used for diagonalizaton Ndiag must be a square integer. The default value for Ndiag is the largest square integer less than half the total number of MPI ranks.
 
+The -npool flag (optional) divides the MPI ranks into "pools".  K-points are distributed among pools, and individual k-points can be evaluated with very little communication between pools. The default value for npool is 1.
+
 To run the code, do someting like:
 export OMP_NUM_THREADS=2
 mpirun -np 32 ./mini_dft -in Si_333.in -ntg 4 -ndiag 25 > Si_333.out
@@ -74,7 +78,7 @@ Input decks for for two problem sizes (single-node and large) are provided in th
 
 
 D.1) Single_node case
-The single-node input file (titania_3_120.in) performs one SCF cycle for a 3x3x3 super-cell for TiO2, using the PBE GGA functional and a 120 Ry plane wave cutoff. Only one SCF iteration is performed, so the jobs will exit before the SCF cycle converges. Two runs are required:
+The single-node input file (single-node.in) performs one SCF cycle for a 3x3x3 super-cell for TiO2, using the PBE GGA functional and a 120 Ry plane wave cutoff. Only one SCF iteration is performed, so the jobs will exit before the SCF cycle converges. Two runs are required:
 
 D.1.a) MPI-only: Un-optimized code using only MPI as an execution model is allowed (see RFP documentation). The MPI concurrency is fixed to 40 MPI tasks, but affinity (their placement of those tasks) is left to the discretion of the vendor. The -ndiag and -ntg flags may not be used. Please ensure that OpenMP is turned off for these runs.
 
@@ -82,19 +86,32 @@ D.1.b) MPI+X: Using an additional parallelism-enabling API (such as OpenMP, etc)
 
 
 D.2) Large case
-The large test case (magnesia_10_130.in) performs one SCF cycle for a 10x10x10 super-cell of MgO, using the LDA functional and a 130 Ry plane wave cutoff. Only one SCF iteration is performed, so the jobs will exit before the SCF cycle converges. Two runs are required:
+The large test case (large.in) performs one SCF cycle for a 10x10x10 super-cell of MgO, using the LDA functional and a 130 Ry plane wave cutoff. Only one SCF iteration is performed, so the jobs will exit before the SCF cycle converges. Two runs are required:
 
 D.2.a) MPI-only: As per (D.1.a) for the single node test, but the MPI concurrency is set to 10000 tasks.
 
 D.2.b) MPI+X: Same rules as for the optimized single node case but for a large problem that spans many nodes. This problem has been tested at 10000 MPI ranks in MPI-only mode
 
+D.3) Capability Improvement
+Capability improvement measurements are enabled by increasing the number of k-points used in the large test case. The k-point grid is specified on the last two lines of large.in:
+
+K_POINTS automatic
+nk1 nk2 nk3 1 1 1
+
+To increase the number of k-points, adjust the (integer) parameters nk1, nk2 and nk3, which determine the size of the k-point integration grid. The number of k-points increases (roughly) linearly with the product nk1 * nk2 * nk3, though a significant fraction of these points are excluded due to symmetry. Grep for "number of k points" to determine the actual number of k-points used. The increase in capability for the capability improvement calculation is the increase in the number of k-oints used for the large problem (1). 
+
+The rules for the capability improvement measurement are the same as the MPI+X case (D.1.b), but require  10000 MPI ranks per k-point. The -npool command line argument should be set to the number of k-points.
+
+Advice to vendors: The number of k-points is printed at the beginning of a MiniDFT run, but cannot be easily counted beforehand to set -npool. A reasonable solution is to initiate a trial-run with -npool=1, determine the number of k-points, cancel the trial-run, and restart with an appropriate value for npool.
+
 
 E) Verification:
 The benchmark runs are validated based on the total energy after one SCF cycle. The total energy should agree with the reference value to within 1e-6 Ry. The script validate_minidft.py should be used extract the energies and perform the comparison.
 
-> ./validate_minidft.py   titania_3_120.out
-> ./validate_minidft.py magnesia_10_130.out
+> ./validate_minidft.py single-node.out
+> ./validate_minidft.py       large.out
 
+Reference output listings for the small and large case are in the ../sample_outputs directory.
 
 F.) Timing. 
  The time measured by the miniDFT benchmark excludes initialization and finalization stages. It is labeled "Benchmark_Time" (without quotes) and is on the final line of output. The Benchmark_Time is also printed by validate_minidft.py.

@@ -185,8 +185,9 @@ SUBROUTINE sum_band()
        ! ... here we sum for each k point the contribution
        ! ... of the wavefunctions to the charge
        !
-       ! BMA: eliminate nonessential filesystem activities for miniDFT
-       !IF ( nks > 1 ) REWIND( iunigk )
+#ifdef __IGKIO
+       IF ( nks > 1 ) REWIND( iunigk )
+#endif
        !
        use_tg = dffts%have_task_groups
        dffts%have_task_groups = ( dffts%have_task_groups ) .AND. ( nbnd >= dffts%nogrp )
@@ -213,8 +214,10 @@ SUBROUTINE sum_band()
           !
           IF ( nks > 1 ) THEN
              !
-             !READ( iunigk ) igk !BMA eliminate fs activit for miniDFT
-             !CALL get_buffer ( evc, nwordwfc, iunwfc, ik )
+#ifdef __IGKIO
+             READ( iunigk ) igk 
+             CALL get_buffer ( evc, nwordwfc, iunwfc, ik )
+#endif __IGKIO
              !
           END IF
           !

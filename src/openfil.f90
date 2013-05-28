@@ -58,8 +58,10 @@ SUBROUTINE openfil()
   ELSE
      iunwfc = -1
   END IF
-  !BMA: eliminiate filesystem activity for miniDFT
-  !CALL open_buffer( iunwfc, 'wfc', nwordwfc, nks, exst )
+  !
+#ifdef __IGKIO
+  CALL open_buffer( iunwfc, 'wfc', nwordwfc, nks, exst )
+#endif
   !
   IF ( TRIM(starting_wfc) == 'file' .AND. .NOT. exst)  THEN
      !
@@ -76,8 +78,9 @@ SUBROUTINE openfil()
         !
         ! ... wavefunctions are read into memory
         !
-        !BMA: eliminiate filesystem activity for miniDFT
-        !CALL init_buffer ( iunwfc, exst, ierr )
+#ifdef __IGKIO
+        CALL init_buffer ( iunwfc, exst, ierr )
+#endif
         !
      END IF
 
@@ -108,8 +111,9 @@ SUBROUTINE openfil()
   ! ... iunigk contains the number of PW and the indices igk
   ! ... Note that unit 15 is reserved for error messages 
   !
-  ! BMA: eliminate filesystem actions that arent used by mini-app
-  !CALL seqopn( iunigk, 'igk', 'UNFORMATTED', exst )
+#ifdef __IGKIO
+  CALL seqopn( iunigk, 'igk', 'UNFORMATTED', exst )
+#endif
   !
   ! ... open units for electric field calculations
   !

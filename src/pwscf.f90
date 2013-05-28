@@ -90,7 +90,7 @@ PROGRAM pwscf
   call hpctoolkit_sampling_start();
 #endif
 #ifdef __IPM
-  call MPI_Pcontrol( 1, "NERSC"//char(0))
+  call MPI_Pcontrol( 1, "Benchmark_Time"//char(0))
 #endif
   !
   main_loop: DO
@@ -133,7 +133,7 @@ PROGRAM pwscf
   CALL stop_clock( 'Benchmark_Time' )
   !
 #ifdef __IPM
-  call MPI_Pcontrol( -1, "NERSC"//char(0))
+  call MPI_Pcontrol( -1, "Benchmark_Time"//char(0))
 #endif
 #ifdef __HPCTK
   call hpctoolkit_sampling_stop();

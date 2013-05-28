@@ -74,7 +74,9 @@ SUBROUTINE c_bands( iter, ik_, dr2 )
   !
   avg_iter = 0.D0
   !
-  !if ( nks > 1 ) REWIND( iunigk )  !BMA: eliminate fs activity for miniDFT
+#ifdef __IGKIO
+  if ( nks > 1 ) REWIND( iunigk )  !BMA: eliminate fs activity for miniDFT
+#endif
   !
   ! ... For each k point diagonalizes the hamiltonian
   !
@@ -86,7 +88,9 @@ SUBROUTINE c_bands( iter, ik_, dr2 )
      !
      ! ... Reads the list of indices k+G <-> G of this k point
      !
-     !IF ( nks > 1 ) READ( iunigk ) igk !BMA: eliminate fs activity for miniDFT
+#ifdef __IGKIO
+     IF ( nks > 1 ) READ( iunigk ) igk !BMA: eliminate fs activity for miniDFT
+#endif
      !
      npw = ngk(ik)
      !
@@ -108,10 +112,10 @@ SUBROUTINE c_bands( iter, ik_, dr2 )
      !
      ! ... read in wavefunctions from the previous iteration
      !
-     !BMA: eliminiate filesystem activity for miniDFT
-     !IF ( nks > 1 .OR. (io_level > 1) ) &
-     !     CALL get_buffer ( evc, nwordwfc, iunwfc, ik )
-     !
+#ifdef __IGKIO
+     IF ( nks > 1 .OR. (io_level > 1) ) &
+          CALL get_buffer ( evc, nwordwfc, iunwfc, ik )
+#endif
      ! ... Needed for LDA+U
      !
      !
@@ -123,10 +127,10 @@ SUBROUTINE c_bands( iter, ik_, dr2 )
      ! ... iterative diagonalization of the next scf iteration
      ! ... and for rho calculation
      !
-     !BMA: eliminiate filesystem activity for miniDFT
-     !IF ( nks > 1 .OR. (io_level > 1) ) &
-     !     CALL save_buffer ( evc, nwordwfc, iunwfc, ik )
-     !
+#ifdef __IGKIO
+     IF ( nks > 1 .OR. (io_level > 1) ) &
+          CALL save_buffer ( evc, nwordwfc, iunwfc, ik )
+#endif
      ! ... save restart information
      !
      IF ( io_level > 1 ) CALL save_in_cbands( iter, ik, dr2 )

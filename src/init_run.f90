@@ -9,7 +9,7 @@
 SUBROUTINE init_run()
   !----------------------------------------------------------------------------
   !
-  USE klist,              ONLY : nkstot
+  USE klist,              ONLY : nkstot, nks
   USE symme,              ONLY : sym_rho_init
   USE wvfct,              ONLY : nbnd, et, wg, btype
   USE control_flags,      ONLY : lmd !!$, gamma_only
@@ -40,6 +40,20 @@ SUBROUTINE init_run()
   CALL sym_rho_init (.false.)
   !
   CALL summary()
+  !
+#ifndef __IGKIO
+  if( nks .ne. 1 )then
+     !bma 20May2013 
+     !  A small amount of file I/O is required for multiple k-points per pool.
+     !  MiniDFT skips this I/O (a feature), which introduces a bug if nks>1
+     !  Stop here to count k-points without manually cancelling the job.
+     !  To enable multiple k-points per pool, recompile with -D__IGKIO
+     write(*,*) "================================"
+     write(*,*) "This job uses multiple k-points."
+     write(*,*) "Please restart with -npool",nkstot
+     stop
+  end if
+#endif
   !
   ! ... allocate memory for all other arrays (potentials, wavefunctions etc)
   !

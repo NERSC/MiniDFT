@@ -39,8 +39,9 @@ SUBROUTINE hinit0()
   CALL init_us_1()
   CALL init_at_1()
   !
-  ! BMA: eliminate nonessential filesystem activity for miniDFT
-  !REWIND( iunigk )
+#ifdef __IGKIO
+  REWIND( iunigk )
+#endif
   !
   ! ... The following loop must NOT be called more than once in a run
   ! ... or else there will be problems with variable-cell calculations
@@ -53,7 +54,9 @@ SUBROUTINE hinit0()
      !
      ! ... if there is only one k-point npw and igk stay in memory
      !
-     !IF ( nks > 1 ) WRITE( iunigk ) igk
+#ifdef __IGKIO
+     IF ( nks > 1 ) WRITE( iunigk ) igk
+#endif __IGKIO
      !
   END DO
   !

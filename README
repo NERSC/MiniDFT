@@ -1,4 +1,4 @@
-This is the README file for MiniDFT 1.04.
+This is the README file for MiniDFT 1.05.
 
 A.) Description
 
@@ -102,7 +102,7 @@ To increase the number of k-points, adjust the (integer) parameters nk1, nk2 and
 
 The rules for the capability improvement measurement are the same as the MPI+X case (D.1.b), but require  10000 MPI ranks per k-point. The -npool command line argument should be set to the number of k-points.
 
-Advice to vendors: The number of k-points is printed at the beginning of a MiniDFT run, but cannot be easily counted beforehand to set -npool. A reasonable solution is to initiate a trial-run with -npool=1, determine the number of k-points, cancel the trial-run, and restart with an appropriate value for npool.
+Advice to vendors: The number of k-points is printed at the beginning of a MiniDFT run, but cannot be easily counted beforehand to set -npool. A reasonable solution is to initiate a trial-run with -npool=1. The trial-run will print the number of k-points and stop if there is not an equal number of pools. Then restart with an appropriate value for npool.
 
 
 E) Verification:

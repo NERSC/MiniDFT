@@ -164,33 +164,33 @@ CONTAINS
   !==-----------------------------------------------------------------------==!
   SUBROUTINE parallel_info ( )
     !
-#if defined(__OPENMP)
+#if defined(__OPENMP) || defined(_OPENMP)
     INTEGER, EXTERNAL :: omp_get_max_threads
 #endif
     !
-#if defined(__OPENMP)
+#if defined(__OPENMP) || defined(_OPENMP)
     WRITE( stdout, '(/5X,"Parallel version (MPI & OpenMP), running on ",&
-         &I5," processor cores")' ) nproc * omp_get_max_threads()
+         &I8," processor cores")' ) nproc * omp_get_max_threads()
     !
-    WRITE( stdout, '(5X,"Number of MPI processes:           ",I5)' ) nproc
+    WRITE( stdout, '(5X,"Number of MPI processes:           ",I8)' ) nproc
     !
-    WRITE( stdout, '(5X,"Threads/MPI process:               ",I4)' ) &
+    WRITE( stdout, '(5X,"Threads/MPI process:               ",I6)' ) &
          omp_get_max_threads()
 #else
     WRITE( stdout, '(/5X,"Parallel version (MPI), running on ",&
-         &I5," processors")' ) nproc 
+         &I8," processors")' ) nproc 
 #endif
     !
     IF ( nimage > 1 ) WRITE( stdout, &
-         '(5X,"path-images division:  nimage    = ",I4)' ) nimage
+         '(5X,"path-images division:  nimage    = ",I8)' ) nimage
     IF ( nbgrp > 1 ) WRITE( stdout, &
-         '(5X,"band groups division:  nbgrp     = ",I4)' ) nbgrp
+         '(5X,"band groups division:  nbgrp     = ",I8)' ) nbgrp
     IF ( npool > 1 ) WRITE( stdout, &
-         '(5X,"K-points division:     npool     = ",I4)' ) npool
+         '(5X,"K-points division:     npool     = ",I8)' ) npool
     IF ( nproc_pool > 1 ) WRITE( stdout, &
-         '(5X,"R & G space division:  proc/pool = ",I4)' ) nproc_pool
+         '(5X,"R & G space division:  proc/pool = ",I8)' ) nproc_pool
     IF ( get_ntask_groups() > 1 ) WRITE( stdout, &
-         '(5X,"wavefunctions fft division:  fft/group = ",I4)' ) &
+         '(5X,"wavefunctions fft division:  fft/group = ",I8)' ) &
          get_ntask_groups()
     !
   END SUBROUTINE parallel_info

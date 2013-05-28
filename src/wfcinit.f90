@@ -75,9 +75,10 @@ SUBROUTINE wfcinit()
      ! ... memory if c_bands will not do it (for a single k-point);
      ! ... return and do nothing otherwise (c_bands will read wavefunctions)
      !
-     !BMA: eliminate unnecessary filesystem activity for miniDFT
-     !IF ( nks == 1 .AND. (io_level < 2) ) &
-     !   CALL get_buffer ( evc, nwordwfc, iunwfc, 1 )
+#ifdef __IGKIO
+     IF ( nks == 1 .AND. (io_level < 2) ) &
+        CALL get_buffer ( evc, nwordwfc, iunwfc, 1 )
+#endif
      !
      CALL stop_clock( 'wfcinit' )
      !
@@ -85,7 +86,9 @@ SUBROUTINE wfcinit()
      !
   END IF
   !
-  !IF ( nks > 1 ) REWIND( iunigk ) !BMA eliminate fs activity for miniDFT
+#ifdef __IGKIO
+  IF ( nks > 1 ) REWIND( iunigk ) !BMA eliminate fs activity for miniDFT
+#endif
   !
   ! ... calculate and write all starting wavefunctions to file
   !
@@ -96,7 +99,10 @@ SUBROUTINE wfcinit()
      current_k = ik
      IF ( lsda ) current_spin = isk(ik)
      npw = ngk (ik)
-     !IF ( nks > 1 ) READ( iunigk ) igk !BMA eliminate fs activity for miniDFT
+     !
+#ifdef __IGKIO
+     IF ( nks > 1 ) READ( iunigk ) igk !BMA eliminate fs activity for miniDFT
+#endif
      !
      call g2_kin (ik)
      !
@@ -113,9 +119,10 @@ SUBROUTINE wfcinit()
      !
      ! ... write  starting wavefunctions to file
      !
-     !BMA: eliminate unnecessary filesystem activity for miniDFT
-     !IF ( nks > 1 .OR. (io_level > 1)  ) &
-     !    CALL save_buffer ( evc, nwordwfc, iunwfc, ik )
+#ifdef __IGKIO
+     IF ( nks > 1 .OR. (io_level > 1)  ) &
+         CALL save_buffer ( evc, nwordwfc, iunwfc, ik )
+#endif
      !
   END DO
   !

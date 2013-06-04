@@ -1,3 +1,6 @@
+01-June-2013   v1.06 B. Austin <brianmaustin @nospam@ gmail.com>
+        * README: removed 10k MPI task constraint for capability run
+
 28-May-2013    v1.05 B. Austin <brianmaustin @nospam@ gmail.com>
 	* src/init_run.f90: force stop if npool != nkpoint
 	* src/c_bands.f90 hinit0.f90 init_run.f90 openfil.f90

@@ -21,6 +21,7 @@ SUBROUTINE iosys()
   !
   !
   USE kinds,         ONLY : DP
+  USE funct,         ONLY: set_exx_fraction, set_screening_parameter
   USE control_flags, ONLY: adapt_thr, tr2_init, tr2_multi
   USE constants,     ONLY : autoev, eV_to_kelvin, pi, rytoev, &
                             ry_kbar, amconv, bohr_radius_angs, eps8
@@ -77,6 +78,15 @@ SUBROUTINE iosys()
   !
   !
   USE a2F,           ONLY : la2F_ => la2F
+  !
+  USE exx,           ONLY : x_gamma_extrapolation_ => x_gamma_extrapolation, &
+                            nqx1_ => nq1, &
+                            nqx2_ => nq2, &
+                            nqx3_ => nq3, &
+                            exxdiv_treatment_ => exxdiv_treatment, &
+                            yukawa_           => yukawa, &
+                            ecutvcut_         => ecutvcut, &
+                            ecutfock_         => ecutfock
   !
   !
   !
@@ -803,6 +813,16 @@ SUBROUTINE iosys()
   nofrac                  = force_symmorphic
   nbnd_                   = nbnd
   !
+  x_gamma_extrapolation_ = x_gamma_extrapolation
+  !
+  nqx1_ = nqx1
+  nqx2_ = nqx2
+  nqx3_ = nqx3
+  !
+  exxdiv_treatment_ = trim(exxdiv_treatment)
+  yukawa_   = yukawa
+  ecutvcut_ = ecutvcut
+  ecutfock_ = ecutfock
   !
   !
   diago_full_acc_ = diago_full_acc
@@ -893,6 +913,9 @@ SUBROUTINE iosys()
   !
   CALL readpp ( input_dft )
   !
+  IF (exx_fraction >= 0.0_DP) CALL set_exx_fraction (exx_fraction)
+  IF (screening_parameter >= 0.0_DP) &
+        & CALL set_screening_parameter (screening_parameter)
   !
   ! ... variables for constrained dynamics are set here
   !

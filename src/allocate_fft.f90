@@ -25,7 +25,7 @@ SUBROUTINE allocate_fft
   USE spin_orb,  ONLY : domag
   USE scf,       ONLY : rho, v, vnew, vltot, vrs, rho_core, rhog_core, &
                         kedtau, create_scf_type
-  USE wavefunctions_module, ONLY : psic, psic_nc
+  USE wavefunctions_module, ONLY : psic
   IMPLICIT NONE
   !
   !     determines the data structure for fft arrays

@@ -12,8 +12,6 @@ SUBROUTINE s_psi( lda, n, m, psi, spsi )
   !
   ! ... This routine applies the S matrix to m wavefunctions psi
   ! ... and puts the results in spsi.
-  ! ... Requires the products of psi with all beta functions
-  ! ... in array becp(nkb,m) (calculated in h_psi or by calbec)
   !
   ! ... input:
   !

@@ -35,14 +35,22 @@ OBJECTS = \
 	error_handler.o \
 	fft_scalar.o \
 	fft_custom.o \
+	recvec.o \
+	pwcom.o \
+	stick_base.o \
+	stick_set.o \
+	data_structure_custom.o \
 	fft_parallel.o \
 	fft_interfaces.o \
 	wrappers.o \
-	recvec.o \
 	funct.o \
 	griddim.o \
 	image_io_routines.o \
+        allocate_fft_custom.o \
+        ruotaijk.o \
+        xk_wk_collect.o \
 	mp_base.o \
+	mp_wave.o \
 	mp_image_global_module.o \
 	pseudo_types.o \
 	zhpev_drv.o \
@@ -58,8 +66,6 @@ OBJECTS = \
 	run_info.o \
 	set_signal.o \
 	splinelib.o \
-	stick_base.o \
-	stick_set.o \
 	wavefunctions.o \
 	\
 	c_mkdir.o \
@@ -77,7 +83,6 @@ OBJECTS = \
 	cryst_to_car.o \
 	date_and_tim.o \
 	distools.o \
-	dylmr2.o \
 	erf.o \
 	find_free_unit.o \
 	flush_unit.o \
@@ -98,13 +103,11 @@ OBJECTS = \
 	volume.o \
 	ylmr2.o \
 	\
-	pwcom.o \
 	symm_base.o \
 	start_k.o \
 	scf_mod.o \
 	a2fmod.o \
 	buffers.o \
-	input.o \
 	becmod.o \
 	add_vuspsi.o \
 	allocate_fft.o \
@@ -127,22 +130,17 @@ OBJECTS = \
 	divide_et_impera.o \
 	drhoc.o \
 	dvloc_of_g.o \
-	clean_pw.o \
 	compute_deff.o \
 	newd.o \
+        coulomb_vcut.o \
+        exx.o \
+	clean_pw.o \
+	input.o \
 	electrons.o \
 	eqvect.o \
 	ewald.o \
-	force_cc.o \
-	force_corr.o \
-	force_ew.o \
-	force_lc.o \
-	force_us.o \
-	forces.o \
 	g2_kin.o \
 	g_psi.o \
-	gen_us_dj.o \
-	gen_us_dy.o \
 	gk_sort.o \
 	gradcorr.o \
 	h_1psi.o \
@@ -167,7 +165,6 @@ OBJECTS = \
 	potinit.o \
 	print_clock_pw.o \
 	print_ks_energies.o \
-	punch.o \
 	read_input.o \
 	pwscf.o \
 	remove_atomic_rho.o \
@@ -175,23 +172,12 @@ OBJECTS = \
 	rotate_wfc_k.o \
 	s_1psi.o \
 	s_psi.o \
-	save_in_cbands.o \
-	save_in_electrons.o \
-	save_in_ions.o \
 	set_kup_and_kdw.o \
 	set_rhoc.o \
 	set_vrs.o \
 	setlocal.o \
 	setup.o \
 	stop_run.o \
-	stres_cc.o \
-	stres_ewa.o \
-	stres_gradcorr.o \
-	stres_har.o \
-	stres_knl.o \
-	stres_loc.o \
-	stres_us.o \
-	stress.o \
 	struct_fact.o \
 	sum_band.o \
 	summary.o \

@@ -1,3 +1,10 @@
+01-May-2015 J. Deslippe <jdeslip @nospam@ gmail.com>
+        * Added EXX to MiniDFT - supports PBE0 functional. 
+        * Deleted unused code including forces/stress/spin/gamma-only.
+        * Moved large becp allocations to be done on the fly
+        * Added openmp to BLAS1 like code in exx routine etc.
+        * Update benchmarks to pbe0
+
 01-June-2013   v1.06 B. Austin <brianmaustin @nospam@ gmail.com>
         * README: removed 10k MPI task constraint for capability run
 

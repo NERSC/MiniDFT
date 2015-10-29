@@ -69,7 +69,8 @@ SUBROUTINE setup()
   USE funct,              ONLY : set_dft_from_name
   USE mp_global,          ONLY : kunit
   USE spin_orb,           ONLY : lspinorb, domag
-  USE funct,              ONLY : dft_is_gradient
+  USE exx,                ONLY : exx_grid_init, exx_div_check
+  USE funct,              ONLY : dft_is_gradient, dft_is_hybrid
   !
   IMPLICIT NONE
   !
@@ -380,6 +381,12 @@ SUBROUTINE setup()
   kunit = 1
   CALL divide_et_impera( xk, wk, isk, lsda, nkstot, nks )
   !
+
+  IF ( dft_is_hybrid() ) THEN
+     CALL exx_grid_init()
+     CALL exx_div_check()
+  ENDIF
+
   IF (one_atom_occupations) THEN
      DO ik=1,nkstot
         DO ibnd=natomwfc+1, nbnd

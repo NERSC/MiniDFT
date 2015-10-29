@@ -16,7 +16,7 @@ SUBROUTINE data_structure( gamma_only )
   USE kinds,      ONLY : DP
   USE io_global,  ONLY : stdout
   USE mp,         ONLY : mp_max
-  USE mp_global,  ONLY : me_bgrp, nproc_bgrp, inter_bgrp_comm, intra_bgrp_comm, root_bgrp
+  USE mp_global,  ONLY : me_bgrp, nproc_bgrp, inter_pool_comm, intra_bgrp_comm, root_bgrp
   USE mp_global,  ONLY : get_ntask_groups
   USE fft_base,   ONLY : dfftp, dffts
   USE cell_base,  ONLY : bg, tpiba
@@ -35,7 +35,7 @@ SUBROUTINE data_structure( gamma_only )
   INTEGER :: me, nproc, inter_comm, intra_comm, root
   me = me_bgrp
   nproc = nproc_bgrp
-  inter_comm = inter_bgrp_comm
+  inter_comm = inter_pool_comm
   intra_comm = intra_bgrp_comm
   root = root_bgrp
   !

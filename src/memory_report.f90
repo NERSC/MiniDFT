@@ -64,15 +64,9 @@ SUBROUTINE memory_report()
                  & 5x,"(",i4,",",i4,")")') &
   DBLE(g_size*nbnd_l*nbnd_l)/Mb, nbnd_l, nbnd_l
   !
-  IF ( npol > 1 ) THEN
-     WRITE( stdout, '(8x,"Each <psi_i|beta_j> matrix",f10.2," Mb", &
-                 & 5x,"(",i7,",",i4,",",i5,")")') &
-     DBLE(g_size*nkb*npol*nbnd)/Mb, nkb, npol, nbnd
-  ELSE
-     WRITE( stdout, '(8x,"Each <psi_i|beta_j> matrix",f10.2," Mb", &
+  WRITE( stdout, '(8x,"Each <psi_i|beta_j> matrix",f10.2," Mb", &
                  & 5x,"(",i7,",",i5,")")') &
-     DBLE(g_size*nkb*nbnd)/Mb, nkb, nbnd
-  END IF
+  DBLE(g_size*nkb)/Mb, nkb, nbnd
   !
   IF ( lscf) WRITE( stdout, &
      '(8x,"Arrays for rho mixing     ",f10.2," Mb", 5x,"(",i7,",",i4,")")') &

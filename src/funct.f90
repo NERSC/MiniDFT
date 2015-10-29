@@ -40,16 +40,21 @@ module funct
 !
   USE io_global, ONLY: stdout
   USE kinds,     ONLY: DP
+  USE control_flags,  ONLY : lwfpbe0, lwfpbe0nscf ! Lingzhu Kong
   IMPLICIT NONE
   PRIVATE
   SAVE
   ! subroutines/functions managing dft name and indices
   PUBLIC  :: set_dft_from_indices, set_dft_from_name
   PUBLIC  :: enforce_input_dft, write_dft_name, dft_name
+  PUBLIC  :: init_dft_exxrpa, enforce_dft_exxrpa
   PUBLIC  :: get_dft_name, get_iexch, get_icorr, get_igcx, get_igcc, get_inlc
-  PUBLIC  :: dft_is_gradient
+  PUBLIC  :: dft_is_gradient, dft_is_hybrid
 
   ! additional subroutines/functions for hybrid functionals
+  PUBLIC  :: start_exx, stop_exx, get_exx_fraction, exx_is_active
+  PUBLIC  :: set_exx_fraction
+  PUBLIC  :: set_screening_parameter, get_screening_parameter
   ! additional subroutines/functions for finite size corrections
   ! driver subroutines computing XC
   PUBLIC  :: xc, xc_spin, gcxc, gcx_spin, gcc_spin 
@@ -196,10 +201,19 @@ CONTAINS
        call set_dft_value (igcc, 0)      
        call set_dft_value (inlc,0)    
        dft_defined = .true.
+
+    else if ('PBE0'.EQ. TRIM(dftout) ) then
+    ! special case : PBE0
+       call set_dft_value (iexch,6)
+       call set_dft_value (icorr,4)
+       call set_dft_value (igcx, 8)
+       call set_dft_value (igcc, 4)
+       call set_dft_value (inlc,0) !Default
+       dft_defined = .true.
            
     else
        
-       call errore('set_dft_from_name','only LDA and PZ functionals are supported in mini_DFT',1)
+       call errore('set_dft_from_name','only LDA, PBE and PBE0 functionals are supported in mini_DFT',1)
 
     END IF
 
@@ -255,6 +269,9 @@ CONTAINS
 
     ismeta     =  (igcx == 7)
 
+    ! PBE0
+    IF ( iexch==6 .or. igcx ==8 ) exx_fraction = 0.25_DP
+
     ishybrid = ( exx_fraction /= 0.0_DP )
 
     has_finite_size_correction = ( iexch==8 .or. icorr==11)
@@ -303,8 +320,79 @@ CONTAINS
 
      return
   end subroutine enforce_input_dft
- 
   !-----------------------------------------------------------------------
+  subroutine enforce_dft_exxrpa ( )
+    ! 
+    implicit none
+    !
+    !character(len=*), intent(in) :: dft_
+    !logical, intent(in), optional :: nomsg
+
+    iexch = 0; icorr = 0; igcx = 0; igcc = 0
+    exx_fraction = 1.0_DP
+    ishybrid = ( exx_fraction /= 0.0_DP )
+
+    write (stdout,'(/,5x,a)') "XC functional enforced to be EXXRPA"
+    call write_dft_name
+    write (stdout,'(5x,a)') "!!! Any further DFT definition will be discarded"
+    write (stdout,'(5x,a/)') "!!! Please, verify this is what you really want !"
+
+    return
+  end subroutine enforce_dft_exxrpa
+
+  !-----------------------------------------------------------------------
+  subroutine init_dft_exxrpa ( )
+    !
+    implicit none
+    !
+    exx_fraction = 1.0_DP
+    ishybrid = ( exx_fraction /= 0.0_DP )
+
+    write (stdout,'(/,5x,a)') "Only exx_fraction is set to 1.d0"
+    write (stdout,'(5x,a)') "XC functional still not changed"
+    call write_dft_name
+
+    return
+  end subroutine init_dft_exxrpa
+  !-----------------------------------------------------------------------
+  subroutine start_exx
+     if (.not. ishybrid) &
+        call errore('start_exx','dft is not hybrid, wrong call',1)
+     exx_started = .true.
+  end subroutine start_exx
+  !-----------------------------------------------------------------------
+  subroutine stop_exx
+     if (.not. ishybrid) &
+        call errore('stop_exx','dft is not hybrid, wrong call',1)
+     exx_started = .false.
+  end subroutine stop_exx
+  !-----------------------------------------------------------------------
+  function exx_is_active ()
+     logical exx_is_active
+     exx_is_active = exx_started
+  end function exx_is_active
+  !-----------------------------------------------------------------------
+  subroutine set_exx_fraction (exxf_)
+     implicit none
+     real(DP):: exxf_
+     exx_fraction = exxf_
+     write (stdout,'(5x,a,f6.2)') 'EXX fraction changed: ',exx_fraction
+  end subroutine set_exx_fraction
+  !---------------------------------------------------------------------
+  subroutine set_screening_parameter (scrparm_)
+     implicit none
+     real(DP):: scrparm_
+     screening_parameter = scrparm_
+     write (stdout,'(5x,a,f12.7)') 'EXX Screening parameter changed: ', &
+          & screening_parameter
+  end subroutine set_screening_parameter 
+  !-----------------------------------------------------------------------
+  function get_screening_parameter ()
+     real(DP):: get_screening_parameter
+     get_screening_parameter = screening_parameter
+     return
+  end function get_screening_parameter
+  !----------------------------------------------------------------------
   function get_iexch ()
      integer get_iexch
      get_iexch = iexch
@@ -334,6 +422,19 @@ CONTAINS
      get_inlc = inlc
      return
   end function get_inlc
+ !-----------------------------------------------------------------------
+  function dft_is_nonlocc ()
+    logical :: dft_is_nonlocc
+    dft_is_nonlocc = isnonlocc
+    return
+  end function dft_is_nonlocc
+  !-----------------------------------------------------------------------
+  function get_exx_fraction ()
+     real(DP):: get_exx_fraction
+     get_exx_fraction = exx_fraction
+     return
+  end function get_exx_fraction
+  !-----------------------------------------------------------------------
   function get_dft_name ()
      character (len=25) :: get_dft_name
      get_dft_name = dft
@@ -345,7 +446,18 @@ CONTAINS
      dft_is_gradient = isgradient
      return
   end function dft_is_gradient
-  
+  !-----------------------------------------------------------------------
+  function dft_is_meta ()
+     logical :: dft_is_meta
+     dft_is_meta = ismeta
+     return
+  end function dft_is_meta
+  !-----------------------------------------------------------------------
+  function dft_is_hybrid ()
+     logical :: dft_is_hybrid
+     dft_is_hybrid = ishybrid
+     return
+  end function dft_is_hybrid
   !-----------------------------------------------------------------------
   subroutine set_dft_from_indices(iexch_,icorr_,igcx_,igcc_, inlc_)
      integer :: iexch_, icorr_, igcx_, igcc_, inlc_
@@ -396,6 +508,8 @@ CONTAINS
      shortname_ = corr(icorr_)
   else if (iexch_==1.and.icorr_==4.and.igcx_==3.and.igcc_==4) then
      shortname_ = 'PBE'
+  else if (iexch_==6.and.icorr_==4.and.igcx_==8.and.igcc_==4) then
+     shortname_ = 'PBE0'
   else
      shortname_ = ' '
   end if
@@ -408,6 +522,8 @@ subroutine write_dft_name
 !-----------------------------------------------------------------------
    WRITE( stdout, '(5X,"Exchange-correlation      = ",A, &
         &  " (",5I2,")")') TRIM( dft ), iexch, icorr, igcx, igcc, inlc
+   WRITE( stdout, '(5X,"EXX-fraction              =",F12.2)') &
+        get_exx_fraction()
    return
 end subroutine write_dft_name
 
@@ -452,6 +568,12 @@ subroutine xc (rho, ex, ec, vx, vc)
   !..exchange
   if (iexch == 1) THEN             !  'sla'
      call slater (rs, ex, vx)
+  ELSEIF (iexch == 6) THEN         !  'pb0x'
+     CALL slater(rs, ex, vx)
+     if (exx_started) then
+        ex = (1.0_DP - exx_fraction) * ex
+        vx = (1.0_DP - exx_fraction) * vx
+     end if
   else
      ex = 0.0_DP
      vx = 0.0_DP
@@ -503,6 +625,13 @@ subroutine xc_spin (rho, zeta, ex, ec, vxup, vxdw, vcup, vcdw)
   !..exchange
   IF (iexch == 1) THEN      ! 'sla'
      call slater_spin (rho, zeta, ex, vxup, vxdw)
+  ELSEIF (iexch == 6) THEN  ! 'pb0x'
+     call slater_spin (rho, zeta, ex, vxup, vxdw)
+     if (exx_started) then
+        ex   = (1.0_DP - exx_fraction) * ex
+        vxup = (1.0_DP - exx_fraction) * vxup
+        vxdw = (1.0_DP - exx_fraction) * vxdw
+     end if
   ELSE
      ex = 0.0_DP
      vxup = 0.0_DP
@@ -552,6 +681,13 @@ subroutine gcxc (rho, grho, sx, sc, v1x, v2x, v1c, v2c)
      v2x = 0.0_DP
   elseif (igcx == 3) then
      call pbex (rho, grho, 1, sx, v1x, v2x)
+  elseif (igcx == 8) then ! 'pbe0'
+     call pbex (rho, grho, 1, sx, v1x, v2x)
+     if (exx_started) then
+        sx  = (1.0_DP - exx_fraction) * sx
+        v1x = (1.0_DP - exx_fraction) * v1x
+        v2x = (1.0_DP - exx_fraction) * v2x
+     end if
   else
      sx = 0.0_DP
      v1x = 0.0_DP
@@ -610,6 +746,13 @@ subroutine gcx_spin (rhoup, rhodw, grhoup2, grhodw2, &
           igcx == 10 .or. igcx == 12) then
      ! igcx=3: PBE, igcx=4: revised PBE, igcx=8 PBE0, igcx=10: PBEsol
      ! igcx=12: HSE
+     if (igcx == 4) then
+        iflag = 2
+     elseif (igcx == 10) then
+        iflag = 3
+     else
+        iflag = 1
+     endif
      if (rhoup > small .and. sqrt (abs (grhoup2) ) > small) then
         call pbex (2.0_DP * rhoup, 4.0_DP * grhoup2, iflag, sxup, v1xup, v2xup)
      else
@@ -634,6 +777,16 @@ subroutine gcx_spin (rhoup, rhodw, grhoup2, grhodw2, &
        v2xup = (1.0_DP - exx_fraction) * v2xup
        v2xdw = (1.0_DP - exx_fraction) * v2xdw
      end if
+!=============================================================
+!Lingzhu Kong
+     if (igcx == 3 .and. (lwfpbe0 .or. lwfpbe0nscf) ) then
+       sx =    0.75D0 * sx
+       v1xup = 0.75D0 * v1xup
+       v1xdw = 0.75D0 * v1xdw
+       v2xup = 0.75D0 * v2xup
+       v2xdw = 0.75D0 * v2xdw
+     end if
+!=============================================================
   else
      call errore ('gcx_spin', 'not implemented', igcx)
   endif

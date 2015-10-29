@@ -7,7 +7,7 @@
 !
 !
 !----------------------------------------------------------------------------
-SUBROUTINE add_vuspsi( lda, n, m, hpsi )
+SUBROUTINE add_vuspsi( lda, n, m, psi, hpsi )
   !----------------------------------------------------------------------------
   !
   !    This routine applies the Ultra-Soft Hamiltonian to a
@@ -26,7 +26,7 @@ SUBROUTINE add_vuspsi( lda, n, m, hpsi )
   USE lsda_mod,      ONLY: current_spin
   USE uspp,          ONLY: vkb, nkb, deeq, deeq_nc
   USE uspp_param,    ONLY: nh
-  USE becmod,        ONLY: bec_type, becp
+  USE becmod,        ONLY : bec_type, becp, calbec
   !
   IMPLICIT NONE
   !
@@ -34,6 +34,7 @@ SUBROUTINE add_vuspsi( lda, n, m, hpsi )
   !
   integer, parameter :: npol=1 !subsitute for noncollin_module%npol
   INTEGER, INTENT(IN)  :: lda, n, m
+  COMPLEX(DP), INTENT(IN)  :: psi(lda*npol,m)
   COMPLEX(DP), INTENT(INOUT) :: hpsi(lda*npol,m)  
   !
   ! ... here the local variables
@@ -71,35 +72,31 @@ SUBROUTINE add_vuspsi( lda, n, m, hpsi )
        !
        ijkb0 = 0
        !
-       DO nt = 1, ntyp
-          !
-          DO na = 1, nat
-             !
-             IF ( ityp(na) == nt ) THEN
-                !
-                DO ibnd = 1, m
-                   !
+
+       DO ibnd = 1, m
+
+          ! JRD: Compute becp for just this ibnd here
+          CALL calbec ( n, vkb, psi, becp, ibnd )
+          !write(*,*) 'Computing becp', ibnd
+
+          ijkb0 = 0
+
+          DO nt = 1, ntyp
+             DO na = 1, nat
+                IF ( ityp(na) == nt ) THEN
+
                    DO jh = 1, nh(nt)
-                      !
                       jkb = ijkb0 + jh
-                      !
+
                       DO ih = 1, nh(nt)
-                         !
                          ikb = ijkb0 + ih
-                         !
                          ps(ikb,ibnd) = ps(ikb,ibnd) + &
-                              deeq(ih,jh,na,current_spin) * becp%k(jkb,ibnd)
-                         !
+                              deeq(ih,jh,na,current_spin) * becp%k(jkb)
                       END DO
-                      !
                    END DO
-                   !
-                END DO
-                !
-                ijkb0 = ijkb0 + nh(nt)
-                !
-             END IF
-             !
+                   ijkb0 = ijkb0 + nh(nt)
+                END IF
+             END DO
           END DO
           !
        END DO

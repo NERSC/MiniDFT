@@ -22,13 +22,14 @@ SUBROUTINE h_psi( lda, n, m, psi, hpsi )
   ! ...    hpsi  H*psi
   !
   USE kinds,    ONLY : DP
-  USE becmod,   ONLY : bec_type, becp, calbec
   USE lsda_mod, ONLY : current_spin
   USE scf,      ONLY : vrs  
   USE wvfct,    ONLY : g2kin
   USE uspp,     ONLY : vkb, nkb
   USE gvect,    ONLY : gstart
   USE fft_base, ONLY : dffts
+  USE exx,      ONLY : vexx
+  USE funct,    ONLY : exx_is_active
   !
   IMPLICIT NONE
   !
@@ -63,10 +64,12 @@ SUBROUTINE h_psi( lda, n, m, psi, hpsi )
   !
      !
      CALL start_clock( 'h_psi:vnl' )
-     CALL calbec ( n, vkb, psi, becp, m )
-     CALL add_vuspsi( lda, n, m, hpsi )
+     ! JRD: calbec done in add_vuspsi now
+     CALL add_vuspsi( lda, n, m, psi, hpsi )
      CALL stop_clock( 'h_psi:vnl' )
      !
+!JRD
+  IF ( exx_is_active() ) CALL vexx( lda, n, m, psi, hpsi )
   !
   ! ... electric enthalpy if required
   !

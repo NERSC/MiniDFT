@@ -32,13 +32,11 @@ SUBROUTINE sum_band()
   USE buffers,              ONLY : get_buffer
   USE uspp,                 ONLY : nkb, vkb, becsum, nhtol, nhtoj, indv, okvan
   USE uspp_param,           ONLY : upf, nh, nhm
-  USE wavefunctions_module, ONLY : evc, psic, psic_nc
+  USE wavefunctions_module, ONLY : evc, psic
   USE spin_orb,             ONLY : lspinorb, domag, fcoef
   USE wvfct,                ONLY : nbnd, npwx, npw, igk, wg, et, btype
   USE mp_global,            ONLY : inter_pool_comm, intra_bgrp_comm
   USE mp,                   ONLY : mp_bcast, mp_sum
-  USE becmod,               ONLY : allocate_bec_type, deallocate_bec_type, &
-                                   bec_type, becp
   USE wvfct,                ONLY: nbnd
   !
   IMPLICIT NONE
@@ -89,7 +87,6 @@ SUBROUTINE sum_band()
      END FORALL
      !
   END IF
-  IF ( one_atom_occupations ) CALL allocate_bec_type (nkb,nbnd, becp,intra_bgrp_comm)
   !
   ! ... specific routines are called to sum for each k point the contribution
   ! ... of the wavefunctions to the charge
@@ -98,7 +95,6 @@ SUBROUTINE sum_band()
      CALL sum_band_k()
      !
   !
-  IF ( one_atom_occupations ) CALL deallocate_bec_type ( becp )
   !
   ! ... If a double grid is used, interpolate onto the fine grid
   !
@@ -159,7 +155,6 @@ SUBROUTINE sum_band()
        !
        ! ... k-points version
        !
-       USE becmod, ONLY : bec_type, becp, calbec
        USE mp_global,     ONLY : me_pool
        USE mp,            ONLY : mp_sum
        !
@@ -169,7 +164,6 @@ SUBROUTINE sum_band()
        !
        REAL(DP) :: w1
        ! weights
-       COMPLEX(DP), ALLOCATABLE :: becsum_nc(:,:,:,:)
        !
        INTEGER :: ipol, js
        !
@@ -346,8 +340,6 @@ SUBROUTINE sum_band()
        END IF
        dffts%have_task_groups = use_tg
 
-       !
-       IF ( ALLOCATED (becsum_nc) ) DEALLOCATE( becsum_nc )
        !
        RETURN
        !

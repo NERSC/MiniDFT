@@ -14,7 +14,6 @@ SUBROUTINE s_1psi( npwx, n, psi, spsi )
   !
   USE kinds,  ONLY : DP
   USE uspp,   ONLY : vkb, nkb
-  USE becmod, ONLY : bec_type, becp, calbec
   USE wvfct,                ONLY: nbnd
   !
   IMPLICIT NONE
@@ -26,9 +25,6 @@ SUBROUTINE s_1psi( npwx, n, psi, spsi )
   !
   CALL start_clock( 's_1psi' )
   !
-     !
-     CALL calbec( n, vkb, psi, becp )
-     !
   CALL s_psi( npwx, n, 1, psi, spsi )
   !
   CALL stop_clock( 's_1psi' )

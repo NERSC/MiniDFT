@@ -32,7 +32,7 @@ SUBROUTINE pcegterg( npw, npwx, nvec, nvecx, npol, evc, ethr, &
   USE mp_global,        ONLY : nbgrp, nproc_bgrp, me_bgrp, & 
                                intra_bgrp_comm, root_bgrp, &
                                ortho_comm, np_ortho, me_ortho, ortho_comm_id, &
-                               leg_ortho
+                               leg_ortho, inter_bgrp_comm
   USE descriptors,      ONLY : la_descriptor, descla_init , descla_local_dims
   USE parallel_toolkit, ONLY : zsqmred, zsqmher
   USE mp,               ONLY : mp_bcast, mp_root_sum, mp_sum, mp_barrier
@@ -65,7 +65,9 @@ SUBROUTINE pcegterg( npw, npwx, nvec, nvecx, npol, evc, ethr, &
   !
   ! ... LOCAL variables
   !
+! JRD
   INTEGER, PARAMETER :: maxter = 20
+  !INTEGER, PARAMETER :: maxter = 1
     ! maximum number of iterations
   !
   INTEGER :: kter, nbase, np, kdim, kdmx, n, nb1, nbn
@@ -220,6 +222,7 @@ SUBROUTINE pcegterg( npw, npwx, nvec, nvecx, npol, evc, ethr, &
   !
   hpsi = ZERO
   psi  = ZERO
+
   psi(:,:,1:nvec) = evc(:,:,1:nvec)
   !
   ! ... hpsi contains h times the basis vectors
@@ -265,6 +268,8 @@ SUBROUTINE pcegterg( npw, npwx, nvec, nvecx, npol, evc, ethr, &
   ! ... iterate
   !
   iterate: DO kter = 1, maxter
+     ! JRD
+     write(stdout,*) "David Inner Loop", kter, notcnv
      !
      dav_iter = kter
      !
@@ -393,8 +398,11 @@ SUBROUTINE pcegterg( npw, npwx, nvec, nvecx, npol, evc, ethr, &
         conv(1:nvec) = ( ( ABS( ew(1:nvec) - e(1:nvec) ) < empty_ethr ) )
         !
      END WHERE
+     !JRD
+     !IF ( nbgrp > 1 ) CALL mp_bcast(conv,0,inter_bgrp_comm)
      !
      notcnv = COUNT( .NOT. conv(:) )
+
      !
      e(1:nvec) = ew(1:nvec)
      !

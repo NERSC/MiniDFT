@@ -199,6 +199,8 @@ CONTAINS
      IF( dfft%tg_rdsp(dfft%nogrp) + dfft%tg_rcv(dfft%nogrp) > size( yf ) ) THEN
         CALL errore( ' tg_cfft ', ' inconsistent size ', 1 )
      ENDIF
+
+
      IF( dfft%tg_psdsp(dfft%nogrp) + dfft%tg_snd(dfft%nogrp) > size( f ) ) THEN
         CALL errore( ' tg_cfft ', ' inconsistent size ', 2 )
      ENDIF

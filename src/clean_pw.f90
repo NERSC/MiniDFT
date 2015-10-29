@@ -33,7 +33,7 @@ SUBROUTINE clean_pw( lflag )
                                    vrs, kedtau, destroy_scf_type, vnew
   USE symm_base,            ONLY : irt
   USE symme,                ONLY : sym_rho_deallocate
-  USE wavefunctions_module, ONLY : evc, psic, psic_nc
+  USE wavefunctions_module, ONLY : evc, psic
   USE us,                   ONLY : qrad, tab, tab_at, tab_d2y, spline_ps
   USE uspp,                 ONLY : deallocate_uspp
   USE uspp_param,           ONLY : upf
@@ -44,6 +44,7 @@ SUBROUTINE clean_pw( lflag )
   USE spin_orb,             ONLY : lspinorb, fcoef
   USE atom,                 ONLY : msh, rgrid
   USE radial_grids,         ONLY : deallocate_radial_grid
+  USE exx,                  ONLY : deallocate_exx
   !
   USE pseudo_types,         ONLY : deallocate_pseudo_upf
   !
@@ -101,7 +102,6 @@ SUBROUTINE clean_pw( lflag )
   IF ( ALLOCATED( rho_core ) )   DEALLOCATE( rho_core )
   IF ( ALLOCATED( rhog_core ) )  DEALLOCATE( rhog_core )
   IF ( ALLOCATED( psic ) )       DEALLOCATE( psic )
-  IF ( ALLOCATED( psic_nc ) )    DEALLOCATE( psic_nc )
   IF ( ALLOCATED( vrs ) )        DEALLOCATE( vrs )
   if (spline_ps) then
     IF ( ALLOCATED( tab_d2y) )     DEALLOCATE( tab_d2y )
@@ -150,16 +150,7 @@ SUBROUTINE clean_pw( lflag )
   !
   CALL sticks_deallocate()
   !
-  ! ... arrays allocated for dynamics
-  !
-  !
-  ! ... additional arrays for PAW
-  !
-  !
-  ! ... arrays for real-space algorithm
-  !
-  !
-  !
+  CALL deallocate_exx ( )
   !
   RETURN
   !

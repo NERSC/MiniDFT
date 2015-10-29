@@ -16,7 +16,6 @@ PROGRAM pwscf
   USE cell_base,        ONLY : fix_volume
   USE control_flags,    ONLY : conv_elec, lscf
   USE control_flags,    ONLY : conv_ions, istep, nstep, restart, lmd, lbfgs
-  USE force_mod,        ONLY : lforce, lstres, sigma
   USE environment,      ONLY : environment_start
   USE check_stop,       ONLY : check_stop_init
   USE mp_global,        ONLY : mp_startup, mp_global_end, intra_image_comm
@@ -92,43 +91,16 @@ PROGRAM pwscf
 #ifdef __IPM
   call MPI_Pcontrol( 1, "Benchmark_Time"//char(0))
 #endif
+
   !
-  main_loop: DO
-     !
-     ! ... electronic self-consistentcy
-     !
-     CALL electrons()
-     !
-     IF ( .NOT. conv_elec ) THEN
-       CALL punch( 'all' )
-       CALL stop_run( conv_elec )
-     ENDIF
-     !
-     ! ... ionic section starts here
-     !
-     CALL start_clock( 'ions' )
-     conv_ions = .TRUE.
-     !
-     ! ... force calculation
-     !
-     IF ( lforce ) CALL forces()
-     !
-     ! ... stress calculation
-     !
-     IF ( lstres ) CALL stress ( sigma )
-     !
-     !
-     CALL stop_clock( 'ions' )
-     !
-     ! ... exit condition (ionic convergence) is checked here
-     !
-     IF ( conv_ions ) EXIT main_loop
-     !
-     ! ... terms of the hamiltonian depending upon nuclear positions
-     ! ... are reinitialized here
-     !
-     !
-  END DO main_loop
+  ! ... electronic self-consistentcy
+  !
+  CALL electrons()
+  !
+  IF ( .NOT. conv_elec ) THEN
+    CALL stop_run( conv_elec )
+  ENDIF
+
   CALL MPI_Barrier( intra_image_comm, ierr )
   CALL stop_clock( 'Benchmark_Time' )
   !
@@ -141,7 +113,6 @@ PROGRAM pwscf
   !
   ! ... save final data file
   !
-  CALL punch('all')
   CALL stop_run( conv_ions )
 #ifdef __OPENMP
   call dfftw_cleanup_threads()

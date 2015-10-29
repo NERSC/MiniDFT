@@ -131,9 +131,6 @@ SUBROUTINE c_bands( iter, ik_, dr2 )
      IF ( nks > 1 .OR. (io_level > 1) ) &
           CALL save_buffer ( evc, nwordwfc, iunwfc, ik )
 #endif
-     ! ... save restart information
-     !
-     IF ( io_level > 1 ) CALL save_in_cbands( iter, ik, dr2 )
      !
   END DO k_loop
   !
@@ -218,7 +215,8 @@ SUBROUTINE diag_bands( iter, ik, avg_iter )
   IF ( nbndx > npwx*nproc_bgrp ) &
      CALL errore ( 'diag_bands', 'too many bands, or too few plane waves',1)
   !
-  CALL allocate_bec_type ( nkb, nbnd, becp, intra_bgrp_comm )
+  !write(*,*) "JRD: Allocating becp in c_bands.f90"
+  CALL allocate_bec_type ( nkb, becp, intra_bgrp_comm )
   !
      !
      CALL c_bands_k()
@@ -326,6 +324,10 @@ CONTAINS
        !
        david_loop: DO
           !
+          ! JRD write loops
+          !write(stdout,*) "David Outer Loop"          
+
+          !
           lrot = ( iter == 1 )
           !
              !
@@ -343,7 +345,9 @@ CONTAINS
           !
           ! ... exit condition
           !
+! JRD
           IF ( test_exit_cond() ) EXIT david_loop
+!          EXIT david_loop
           !
        END DO david_loop
        !

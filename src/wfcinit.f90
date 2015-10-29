@@ -255,7 +255,7 @@ SUBROUTINE init_wfc ( ik )
   !
   ! ... Allocate space for <beta|psi>
   !
-  CALL allocate_bec_type ( nkb, n_starting_wfc, becp, intra_bgrp_comm )
+  CALL allocate_bec_type ( nkb, becp, intra_bgrp_comm )
   !
   ! ... the following trick is for electric fields with Berry's phase:
   ! ... by setting lelfield = .false. one prevents the calculation of

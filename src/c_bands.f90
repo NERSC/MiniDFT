@@ -215,7 +215,6 @@ SUBROUTINE diag_bands( iter, ik, avg_iter )
   IF ( nbndx > npwx*nproc_bgrp ) &
      CALL errore ( 'diag_bands', 'too many bands, or too few plane waves',1)
   !
-  !write(*,*) "JRD: Allocating becp in c_bands.f90"
   CALL allocate_bec_type ( nkb, becp, intra_bgrp_comm )
   !
      !

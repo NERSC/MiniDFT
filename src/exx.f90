@@ -680,7 +680,6 @@ subroutine exxinit()
        ALLOCATE(psic_all(nxxs), temppsic_all(nxxs) )
 #endif
 
-! JRD this creates ibnd_start and ibnd_end
     CALL init_index_over_band(inter_bgrp_comm,nbnd)
 
     ALLOCATE(temppsic(nrxxs), psic(nrxxs))
@@ -767,11 +766,18 @@ write(stdout,*) "exxinit, yukawa set to: ", yukawa
           current_ik=ik
        ENDIF
 
-! Potentially too much work and memory. 
-! May want to thread this loop
-       do ibnd =1, nbnd     
-             temppsic(:) = ( 0.D0, 0.D0 )
+       CALL mp_bcast(tempevc,0,inter_bgrp_comm)
+
+       do ibnd=ibnd_start,ibnd_end !for each band of psi
+       !do ibnd =1, nbnd     
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ji) SCHEDULE(STATIC)
+             do ji = 1, nrxxs
+               temppsic(ji) = ( 0.D0, 0.D0 )
+             enddo
+!$OMP END PARALLEL DO
+
              temppsic(nls(igk(1:npw))) = tempevc(1:npw,ibnd)
+
              CALL invfft ('Wave', temppsic, dffts)
 
              do ikq=1,nkqs
@@ -787,21 +793,23 @@ write(stdout,*) "exxinit, yukawa set to: ", yukawa
                 psic(1:nrxxs) = temppsic(rir(1:nrxxs,isym))
 #endif
                 if (index_sym(ikq) < 0 ) psic(1:nrxxs) = CONJG(psic(1:nrxxs))
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ji) SCHEDULE(STATIC)
                 do ji=1, nrxxs
-! JRD Reorder Exxbuf for below?
                    exxbuff(ji,ikq,ibnd)=psic(ji)
                 enddo
+!$OMP END PARALLEL DO
              end do
        end do
 
     end do
 
 ! JRD Below required for reproducibility
-    if(my_bgrp_id>0) then
-       exxbuff=(0.0_DP,0.0_DP)
-    endif
+!    if(my_bgrp_id>0) then
+!       exxbuff=(0.0_DP,0.0_DP)
+!    endif
     if (nbgrp>1) then
-       CALL mp_bcast(exxbuff,0,inter_bgrp_comm)
+!       CALL mp_bcast(exxbuff,0,inter_bgrp_comm)
+       CALL mp_sum(exxbuff, inter_bgrp_comm)
     endif
 
 !   All pools have the complete set of wavefunctions
@@ -868,7 +876,7 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
     INTEGER          :: nqi, myrank, mysize
 
     ! local variables
-    COMPLEX(DP), allocatable :: tempphic(:), temppsic(:), result(:)
+    COMPLEX(DP), allocatable :: temppsic(:), result(:)
     COMPLEX(DP),ALLOCATABLE :: gresult(:)
 
     COMPLEX(DP), allocatable :: rhoc(:), vc(:)
@@ -891,7 +899,7 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
     nrxxs = dffts%nnr
     ALLOCATE( facb(nrxxs) )
 
-    ALLOCATE ( tempphic(nrxxs), temppsic(nrxxs), result(nrxxs) )
+    ALLOCATE ( temppsic(nrxxs), result(nrxxs) )
     ALLOCATE( gresult(npw) )
 
     ALLOCATE (rhoc(nrxxs), vc(nrxxs))
@@ -916,12 +924,21 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
     endif
 
     DO im=1,m !for each band of psi (the k cycle is outside band)
-       temppsic(:) = ( 0.D0, 0.D0 )
+
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
+       do ijk = 1, nrxxs
+         temppsic(ijk) = ( 0.D0, 0.D0 )
+       enddo
+!$OMP END PARALLEL DO
 
        temppsic(nls(igk(1:npw))) = psi(1:npw,im)
        CALL invfft ('Wave', temppsic, dffts)
 
-       result(:)   = (0.d0,0.d0)
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
+       do ijk = 1, nrxxs
+         result(ijk)   = (0.d0,0.d0)
+       enddo
+!$OMP END PARALLEL DO
 
        DO iqi=1,nqi
           iq=iqi
@@ -946,22 +963,24 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
           ! calculate the 1/|r-r'| factor and place it in fac
           CALL g2_convolution(ngm, g, xk(:,current_k), xkq, fac)
 
-          facb = 0D0
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
+          do ijk = 1, nrxxs
+            facb(ijk) = 0D0
+          enddo
+!$OMP END PARALLEL DO
+
           do ijk = 1, ngm
-            !if (nls(ijk) .le. 0 .or. nls(ijk) .gt. nrxxs) write(*,*) "Ooops, outside bounds", nls(ijk), nrxxs
             facb(nls(ijk)) = fac(ijk)
           enddo
 
           DO ibnd=ibnd_start,ibnd_end !for each band of psi
-              !IF ( ABS(x_occupation(ibnd,ik) - 1D0) > 1.d-6) write(*,*) 'WARNING',  my_bgrp_id, me_bgrp, ibnd, ik, x_occupation(ibnd,ik)
               IF ( ABS(x_occupation(ibnd,ik)) < 1.d-6) CYCLE
 
               !loads the phi from file
 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
               do ijk = 1, nrxxs
-                tempphic(ijk)=exxbuff(ijk,ikq,ibnd)
-                rhoc(ijk)=CONJG(tempphic(ijk))*temppsic(ijk) / omega
+                rhoc(ijk)=CONJG(exxbuff(ijk,ikq,ibnd))*temppsic(ijk) / omega
               enddo
 !$OMP END PARALLEL DO
                 
@@ -973,7 +992,7 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
               do ijk = 1, nrxxs
                 !vc(nls(1:ngm)) = fac(1:ngm) * rhoc(nls(1:ngm)) * dtmp
-                vc(ijk) = 0D0
+                !vc(ijk) = 0D0
                 vc(ijk) = facb(ijk) * rhoc(ijk) * dtmp
               enddo
 !$OMP END PARALLEL DO
@@ -984,7 +1003,7 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
               !accumulates over inner bands and k points
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
               do ijk = 1, nrxxs
-                result(ijk)=result(ijk)+vc(ijk)*tempphic(ijk)
+                result(ijk)=result(ijk)+vc(ijk)*exxbuff(ijk,ikq,ibnd)
               enddo
 !$OMP END PARALLEL DO
           END DO
@@ -994,20 +1013,24 @@ SUBROUTINE vexx(lda, n, m, psi, hpsi)
        !brings back result in G-space
        CALL fwfft ('Wave', result, dffts)
 
-       gresult = 0D0
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ig) SCHEDULE(STATIC)
        DO ig = 1, npw
+         !gresult(ig) = 0D0
          gresult(ig) = result(nls(igk(ig)))
        ENDDO
+!$OMP END PARALLEL DO
 
        CALL mp_sum( gresult(1:npw), inter_bgrp_comm)
 
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ig) SCHEDULE(STATIC)
        DO ig = 1, npw
          hpsi(ig,im)=hpsi(ig,im) - exxalfa*gresult(ig)
        ENDDO
+!$OMP END PARALLEL DO
 
     END DO
     
-    DEALLOCATE (tempphic, temppsic, result, gresult) 
+    DEALLOCATE (temppsic, result, gresult) 
 
     DEALLOCATE (rhoc, vc, fac, facb )
 
@@ -1118,7 +1141,7 @@ function exxenergy2()
     REAL (DP)   :: exxenergy2,  energy
 
     ! local variables
-    COMPLEX(DP), allocatable :: tempphic(:), temppsic(:)
+    COMPLEX(DP), allocatable :: temppsic(:)
     COMPLEX(DP), ALLOCATABLE :: rhoc(:)
     REAL (DP),   ALLOCATABLE :: fac(:)
     integer          :: jbnd, ibnd, ik, ikk, ig, ikq, iq, isym
@@ -1138,7 +1161,7 @@ function exxenergy2()
     nrxxs = dffts%nnr
     ALLOCATE( fac(ngm) )
 
-    ALLOCATE (tempphic(nrxxs), temppsic(nrxxs)) 
+    ALLOCATE (temppsic(nrxxs)) 
     ALLOCATE ( rhoc(nrxxs) )
 
     energy=0.d0
@@ -1159,7 +1182,11 @@ function exxenergy2()
           call get_buffer (evc, nwordwfc, iunwfc, ikk)
        END IF
        do jbnd=ibnd_start, ibnd_end !for each band of psi (the k cycle is outside band)
-          temppsic(:) = ( 0.D0, 0.D0 )
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
+          do ijk = 1, nrxxs
+            temppsic(ijk) = ( 0.D0, 0.D0 )
+          enddo
+!$OMP END PARALLEL DO
           temppsic(nls(igk(1:npw))) = evc(1:npw,jbnd)
           CALL invfft ('Wave', temppsic, dffts)
        
@@ -1195,10 +1222,8 @@ function exxenergy2()
 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(ijk) SCHEDULE(STATIC)
                    do ijk = 1, nrxxs
-                        tempphic(ijk)=exxbuff(ijk,ikq,ibnd)
-
                         !calculate rho in real space
-                        rhoc(ijk)=CONJG(tempphic(ijk))*temppsic(ijk) / omega
+                        rhoc(ijk)=CONJG(exxbuff(ijk,ikq,ibnd))*temppsic(ijk) / omega
                    enddo
 !$OMP END PARALLEL DO
 
@@ -1221,7 +1246,7 @@ function exxenergy2()
        end do
     end do
 
-    DEALLOCATE (tempphic, temppsic) 
+    DEALLOCATE (temppsic) 
 
     DEALLOCATE (rhoc, fac )
 

@@ -40,13 +40,19 @@ B.4) Initiate the build
 
 Note: parallel make (e.g., -j 4) will not work.
 
+B.5) Validate the build
+
+You can test the build using the small input (small.pbs and small.in). The total energy should match the total energy to within 10^-5 Ry:
+
+!    total energy              =   -2888.59081781 Ry
+
 C.) How to run mini-DFT:
 
-Mini-DFT accepts two mutally-compatible command line options for PBE0 calculations. 
+Mini-DFT accepts three mutally-compatible command line options for PBE0 calculations. 
 
 The -in flag (required) is used to identify the input file read by mini-DFT.
 
-The -nbgrp flag (optional) enables band-group parallelism to improve the parallel scaling exact exchange calculation.  The number of task groups must be a divisor of the number of MPI ranks. The default value for bgrp is 1. 
+The -nbgrp flag (optional) enables band-group parallelism to improve the parallel scaling exact exchange calculation.  The number of task groups must be a divisor of the number of MPI ranks. The default value for bgrp is 1.  The chosen value must evenly divide the total number of MPI tasks used in the calculation.
 
 The -ndiag flag (optional) sets the number of MPI ranks used for diagonalizaton Ndiag must be a square integer. The default value for Ndiag is the largest square integer less than half the total number of MPI ranks per group. The cannot exceed the tasks per group.
 
@@ -58,20 +64,22 @@ value for ntg is 1.
 The -npool flag (optional) divides the MPI ranks into "pools".  K-points are distributed among pools, and individual k-points can be evaluated with very little communication between pools. The default value for npool is 1.
 
 To run the code, do someting like:
-export OMP_NUM_THREADS=2
+export OMP_NUM_THREADS=6
 mpirun -np 32 ./mini_dft -in small.in -nbgrp 4 > small.out
 
 D.) Required Problems:
-Input decks for the large problem size are provided in the $MDFT_ROOT/benchmark directory. 
+Input decks for the large problem size are provided in the $MDFT_ROOT/benchmark directory - large.in and large.pbs example pbs script. The Ti.pbe.nml and O.pbe.nml must be in the run 
+directory for a successful run. 
 
 E) Verification:
 The benchmark runs are validated based on the total energy after one SCF cycle with exact exchange. The total energy should agree 
-with the reference value to within 1e-6 Ry.
+with the reference value to within 1e-5 Ry.
 
 Reference output listings for the small and large case are in the ../sample_outputs directory.
 
 F.) Timing. 
- The time measured by the miniDFT benchmark excludes initialization and finalization stages. It is labeled "Benchmark_Time" (without quotes) and is on the final line of output.
+
+The time measured by the miniDFT benchmark excludes initialization and finalization stages. It is labeled "Benchmark_Time" (without quotes) and is on the final line of output.
 
 G.) Reporting
 

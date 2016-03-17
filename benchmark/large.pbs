@@ -1,14 +1,12 @@
 #PBS -q regular
 #PBS -l mppwidth=18432
 #PBS -j oe
-#PBS -l walltime=2:00:00
+#PBS -l walltime=00:30:00
 #PBS -N MiniDft
 #PBS -V
 
 cd $PBS_O_WORKDIR
 
 export OMP_NUM_THREADS=6
-
-ulimit -c unlimited
 
 aprun -n 3072 -N 4 -S 2 -d 6 -cc numa_node ../src/mini_dft -nbgrp 96 -in large.in > large.out
